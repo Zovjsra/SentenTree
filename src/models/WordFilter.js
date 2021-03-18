@@ -7,31 +7,31 @@ const TWEET_STOP_WORDS = ['rt', 'via', 'amp', 'http', 'https', 'm', 're', 'co'];
 const DEFAULT_STOP_WORDS = uniq(NLTK_STOP_WORDS.concat(CUSTOM_STOP_WORDS).concat(TWEET_STOP_WORDS));
 
 export default class WordFilter {
-  constructor({
-    includeWords = [],
-    excludeWords = [],
-    includeDefault = true,
-  } = {}) {
-    this.stopWords = includeDefault ? DEFAULT_STOP_WORDS : [];
-    if (includeWords && includeWords.length > 0) {
-      this.stopWords = uniq(this.stopWords.concat(includeWords));
+    constructor({
+        includeWords = [],
+        excludeWords = [],
+        includeDefault = true,
+    } = {}) {
+        this.stopWords = includeDefault ? DEFAULT_STOP_WORDS : [];
+        if (includeWords && includeWords.length > 0) {
+            this.stopWords = uniq(this.stopWords.concat(includeWords));
+        }
+        if (excludeWords && excludeWords.length > 0) {
+            const exclusionLookup = keyBy(excludeWords, w => w);
+            this.stopWords = this.stopWords.filter(w => !exclusionLookup[w]);
+        }
+        this.regex = new RegExp(`^(${this.stopWords.join('|')})$`);
     }
-    if (excludeWords && excludeWords.length > 0) {
-      const exclusionLookup = keyBy(excludeWords, w => w);
-      this.stopWords = this.stopWords.filter(w => !exclusionLookup[w]);
-    }
-    this.regex = new RegExp(`^(${this.stopWords.join('|')})$`);
-  }
 
-  test(word) {
-    return this.regex.test(word);
-  }
+    test(word) {
+        return this.regex.test(word);
+    }
 }
 
 let defaultFilter = null;
 WordFilter.getDefault = () => {
-  if (!defaultFilter) {
-    defaultFilter = new WordFilter();
-  }
-  return defaultFilter;
+    if (!defaultFilter) {
+        defaultFilter = new WordFilter();
+    }
+    return defaultFilter;
 };
